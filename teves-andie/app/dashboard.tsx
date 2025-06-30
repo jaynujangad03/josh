@@ -3,7 +3,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+const APP_NAME = "Library Management System";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -13,6 +15,7 @@ export default function Dashboard() {
     borrowed: 0,
     overdue: 0,
   });
+  const [showLinks, setShowLinks] = useState(false);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -40,60 +43,71 @@ export default function Dashboard() {
   };
 
   return (
-    <LinearGradient colors={["#e0eafc", "#cfdef3"]} style={styles.gradient}>
-      <ScrollView contentContainerStyle={styles.container}>
+    <LinearGradient colors={["#e0eafc", "#cfdef3", "#f9fafe"]} style={styles.gradient}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.logoCircle}>
+          <Image source={require("../assets/images/logo.jpg")} style={styles.logo} />
+        </View>
+        <Text style={styles.appName}>{APP_NAME}</Text>
+        <View style={styles.underline} />
         <Text style={styles.title}>Dashboard</Text>
-        <View style={styles.cardsRow}>
-          <View style={styles.card}>
-            <MaterialIcons name="menu-book" size={32} color="#007AFF" style={{ marginBottom: 8 }} />
-            <Text style={styles.cardLabel}>Total Books</Text>
-            <Text style={styles.cardValue}>{stats.books}</Text>
-          </View>
-          <View style={styles.card}>
-            <MaterialIcons name="person" size={32} color="#34A853" style={{ marginBottom: 8 }} />
-            <Text style={styles.cardLabel}>Total Members</Text>
-            <Text style={styles.cardValue}>{stats.members}</Text>
-          </View>
-        </View>
-        <View style={styles.cardsRow}>
-          <View style={styles.card}>
-            <MaterialIcons name="import-contacts" size={32} color="#FF9500" style={{ marginBottom: 8 }} />
-            <Text style={styles.cardLabel}>Books Borrowed</Text>
-            <Text style={styles.cardValue}>{stats.borrowed}</Text>
-          </View>
-          <View style={styles.card}>
-            <MaterialIcons name="warning" size={32} color="#FF3B30" style={{ marginBottom: 8 }} />
-            <Text style={styles.cardLabel}>Overdue</Text>
-            <Text style={styles.cardValue}>{stats.overdue}</Text>
-          </View>
-        </View>
-        <Text style={styles.quickLinksTitle}>Quick Links</Text>
-        <View style={styles.linksContainer}>
-          <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/books')}>
-            <MaterialIcons name="menu-book" size={20} color="#fff" />
-            <Text style={styles.linkText}>Book Management</Text>
+        {/* 2x2 Grid for summary cards */}
+        <View style={styles.gridContainer}>
+          <TouchableOpacity style={[styles.gridBox, { backgroundColor: 'rgba(0,122,255,0.10)', borderColor: '#007AFF' }]} onPress={() => router.push('/books')} activeOpacity={0.85}>
+            <MaterialIcons name="menu-book" size={32} color="#007AFF" />
+            <Text style={styles.gridLabel}>Total Books</Text>
+            <Text style={styles.gridValue}>{stats.books}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/members')}>
-            <MaterialIcons name="person" size={20} color="#fff" />
-            <Text style={styles.linkText}>Member Management</Text>
+          <TouchableOpacity style={[styles.gridBox, { backgroundColor: 'rgba(52,168,83,0.10)', borderColor: '#34A853' }]} onPress={() => router.push('/members')} activeOpacity={0.85}>
+            <MaterialIcons name="person" size={32} color="#34A853" />
+            <Text style={styles.gridLabel}>Total Members</Text>
+            <Text style={styles.gridValue}>{stats.members}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/borrow')}>
-            <MaterialIcons name="swap-horiz" size={20} color="#fff" />
-            <Text style={styles.linkText}>Borrow & Return</Text>
+          <TouchableOpacity style={[styles.gridBox, { backgroundColor: 'rgba(255,149,0,0.10)', borderColor: '#FF9500' }]} onPress={() => router.push('/borrow')} activeOpacity={0.85}>
+            <MaterialIcons name="import-contacts" size={32} color="#FF9500" />
+            <Text style={styles.gridLabel}>Books Borrowed</Text>
+            <Text style={styles.gridValue}>{stats.borrowed}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/overdue')}>
-            <MaterialIcons name="warning" size={20} color="#fff" />
-            <Text style={styles.linkText}>Overdue & Penalties</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/reports')}>
-            <MaterialIcons name="history" size={20} color="#fff" />
-            <Text style={styles.linkText}>Reports / History</Text>
+          <TouchableOpacity style={[styles.gridBox, { backgroundColor: 'rgba(229,57,53,0.10)', borderColor: '#E53935' }]} onPress={() => router.push('/overdue')} activeOpacity={0.85}>
+            <MaterialIcons name="warning" size={32} color="#E53935" />
+            <Text style={styles.gridLabel}>Overdue</Text>
+            <Text style={styles.gridValue}>{stats.overdue}</Text>
           </TouchableOpacity>
         </View>
+        {/* Quick Links and Logout */}
+        <TouchableOpacity style={styles.quickLinksToggle} onPress={() => setShowLinks((v) => !v)}>
+          <MaterialIcons name={showLinks ? "expand-less" : "expand-more"} size={26} color="#007AFF" />
+          <Text style={styles.quickLinksTitle}>Features</Text>
+        </TouchableOpacity>
+        {showLinks && (
+          <View style={styles.linksContainer}>
+            <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/books')}>
+              <MaterialIcons name="menu-book" size={20} color="#fff" />
+              <Text style={styles.linkText}>Book Management</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/members')}>
+              <MaterialIcons name="person" size={20} color="#fff" />
+              <Text style={styles.linkText}>Member Management</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/borrow')}>
+              <MaterialIcons name="swap-horiz" size={20} color="#fff" />
+              <Text style={styles.linkText}>Borrow & Return</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/overdue')}>
+              <MaterialIcons name="warning" size={20} color="#fff" />
+              <Text style={styles.linkText}>Overdue & Penalties</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/reports')}>
+              <MaterialIcons name="history" size={20} color="#fff" />
+              <Text style={styles.linkText}>Reports / History</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <MaterialIcons name="logout" size={20} color="#fff" />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
+        <Text style={styles.footer}>© {new Date().getFullYear()} Library Management System · v1.0</Text>
       </ScrollView>
     </LinearGradient>
   );
@@ -105,55 +119,95 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
+    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f9fafe",
     padding: 24,
     paddingBottom: 40,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 24,
-    marginTop: 12,
-    color: '#222',
-    letterSpacing: 0.5,
-  },
-  cardsRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 24,
-    marginHorizontal: 8,
-    alignItems: "center",
-    width: 150,
-    elevation: 3,
+  logoCircle: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 18,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.10,
-    shadowRadius: 6,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  cardLabel: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 4,
-    fontWeight: 'bold',
-    letterSpacing: 0.2,
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
-  cardValue: {
-    fontSize: 28,
+  appName: {
+    fontSize: 26,
     fontWeight: "bold",
     color: "#222",
-    marginTop: 2,
+    textAlign: "center",
+    letterSpacing: 0.5,
+    marginBottom: 2,
+    fontFamily: Platform.OS === 'ios' ? 'AvenirNext-Bold' : 'sans-serif-medium',
+  },
+  underline: {
+    width: 60,
+    height: 4,
+    backgroundColor: '#007AFF',
+    borderRadius: 2,
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 18,
+    color: '#222',
+    letterSpacing: 0.5,
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+    width: '100%',
+  },
+  gridBox: {
+    width: '48%',
+    aspectRatio: 1,
+    borderRadius: 16,
+    borderWidth: 1.2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.10,
+    shadowRadius: 4,
+  },
+  gridLabel: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#222',
+    letterSpacing: 0.2,
+    textAlign: 'center',
+  },
+  gridValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#222',
+    marginTop: 6,
+    marginBottom: 2,
   },
   quickLinksTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    marginTop: 32,
-    marginBottom: 12,
+    marginTop: 0,
+    marginBottom: 0,
+    paddingBottom: 0,
     alignSelf: "flex-start",
     color: '#222',
     letterSpacing: 0.2,
@@ -188,7 +242,7 @@ const styles = StyleSheet.create({
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 10,
     paddingVertical: 14,
     paddingHorizontal: 40,
     backgroundColor: "#FF3B30",
@@ -206,5 +260,22 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 10,
     letterSpacing: 0.2,
+  },
+  quickLinksToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: 2,
+    marginBottom: 0,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,122,255,0.07)',
+  },
+  footer: {
+    fontSize: 14,
+    color: '#555',
+    textAlign: 'center',
+    marginTop: 24,
   },
 }); 
